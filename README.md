@@ -1,2 +1,5 @@
 # HoBo
-Repositório Secreto para a OBR 2018
+Repositório Secreto para a competição anônima de robótica do Brasil
+
+# Team
+# Quirino
