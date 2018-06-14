@@ -1,5 +1,3 @@
-# HoBo
-Repositório Secreto para a competição anônima de robótica do Brasil
+# Equipe Ho-Bô
 
-# Team
-# Quirino
+Repositório Secreto para a competição anônima de robótica do Brasil.
