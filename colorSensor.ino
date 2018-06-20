@@ -3,11 +3,11 @@
  */
 
 // Defining right pins
- #define r_S0 4
- #define r_S1 5
- #define r_S2 6
- #define r_S3 7
- #define r_sensorOut 8
+#define r_S0 4
+#define r_S1 5
+#define r_S2 6
+#define r_S3 7
+#define r_sensorOut 8
 
 // Defining left pins
 
