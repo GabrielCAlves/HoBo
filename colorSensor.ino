@@ -33,8 +33,10 @@ void setup() {
   pinMode(l_sensorOut, INPUT);
   
   // Setting frequency-scaling to 20%
-  digitalWrite(S0, HIGH);
-  digitalWrite(S1, LOW);
+  digitalWrite(r_S0, HIGH);
+  digitalWrite(r_S1, LOW);
+  digitalWrite(l_S0, HIGH);
+  digitalWrite(l_S1, LOW);
   
   Serial.begin(9600);
 }
@@ -59,13 +61,13 @@ void loop() {
   r_frequency = map(30, 90, 255, 0);
   l_frequency = map(30, 90, 255, 0);
   
-  if(greenDetect(r_frequency) && greenDetect(l_frequency) {
+  if(greenDetect(r_frequency) && greenDetect(l_frequency)) {
     // ...
     // Turn and go back
-  } else if(greenDetect(r_frequency) {
+  } else if(greenDetect(r_frequency)) {
     // ...
     // Turn right
-  } else if(greenDetect(l_frequency) {
+  } else if(greenDetect(l_frequency)) {
     // ...
     // Turn left
   }
