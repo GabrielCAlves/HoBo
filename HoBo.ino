@@ -1,12 +1,17 @@
 /*
- Nome: HoBo.ino
- Arquivo principal
+	Nome: HoBo.ino
+	Arquivo principal
 */
 
 /*
  - Servos:
-	Luna: 87º
-   	 Ron: 92º
+	Rowena: 82
+	Ravenclaw: 86
+	Luna: 90
+	Lovegood: 90
+
+	Right: 0 <- 180
+	Left: 180 <- 0
 */
 
 #include <Servo.h>
@@ -22,11 +27,14 @@ Adafruit_SSD1306 screen(-1);
 // Direita
 Servo Rowena;
 Servo Ravenclaw;
+
 // Esquerda
 Servo Luna;
 Servo Lovegood;
+
 // Frente
 Servo Garden;
+
 // Garra
 Servo Claw;
 Servo Door;
@@ -48,11 +56,32 @@ const int lSOut = 12;
 // Sensor IR
 const int irA0 = A0;
 
-// Sensor US
-const int usTrig = 22;
-const int usEcho = 23;
+// Sensor US Frente
+const int usFTrig = 22;
+const int usFEcho = 23;
+
+// Sensor US Frente Inclinado
+const int usFITrig = 24;
+const int usFIEcho = 25;
+
+// Sensor US Frente Direita
+const int usFRTrig = 26;
+const int usFREcho = 27;
+
+// Sensor US Frente Esquerda
+const int usFLTrig = 28;
+const int usFLEcho = 29;
+
+// Sensor US Direita
+const int usRTrig = 30;
+const int usREcho = 31;
+
+// Sensor US Esquerda
+const int usLTrig = 32;
+const int usLEcho = 33;
 
 void setup() {
+
 	// Sensores de cor
 	setupColor(rS0, rS1, rS2, rS3, rSOut);
 	setupColor(lS0, lS1, lS2, lS3, lSOut);
@@ -60,74 +89,32 @@ void setup() {
 	// Sensor IR
 	setupIR(irA0);
 
-	// Sensor US
-	setupUS(usTrig, usEcho);
+	// Sensores US
+	setupUS(usFTrig, usFEcho);
+	setupUS(usFITrig, usFIEcho);
+	setupUS(usFRTrig, usFREcho);
+	setupUS(usFLTrig, usFLEcho);
+	setupUS(usRTrig, usREcho);
+	setupUS(usLTrig, usLEcho);
 
 	// Tela OLED
 	setupScreen();
 
 	// Servos
-	setupServo();
+    setupServo();
 
 	// Begin Serial
 	Serial.begin(9600);
+
 }
 
 void loop() {
-	screen.clearDisplay();
-	screen.setCursor(0, 0);
 
-	int rColor = colorDetect(rS2, rS3, rSOut);
-	int lColor = colorDetect(lS2, lS3, lSOut);
-	int irColor = irDetect(irA0);
-	int distance = usDetect(usTrig, usEcho);
+	Rowena.write(0);
+	Ravenclaw.write(0);
+	Luna.write(180);
+	Lovegood.write(180);
 
-	screen.print("R: ");
+	lineFollower();
 
-	switch (rColor) {
-	case 0:
-		screen.print("WHITE");
-		break;
-	case 1:
-		screen.print("BLACK");
-		break;
-	case 2:
-		screen.print("GREEN");
-		break;
-	}
-
-	screen.println();
-	screen.print("IR: ");
-
-	switch (irColor) {
-	case 0:
-		screen.print("WHITE");
-		break;
-	case 1:
-		screen.print("BLACK");
-		break;
-	}
-
-	screen.println();
-	screen.print("L: ");
-
-	switch (lColor) {
-	case 0:
-		screen.print("WHITE");
-		break;
-	case 1:
-		screen.print("BLACK");
-		break;
-	case 2:
-		screen.print("GREEN");
-		break;
-	}
-
-	screen.println();
-	screen.print("US: ");
-	screen.print(distance);
-	screen.print(" cm");
-
-	screen.display();
-	delay(250);
 }
