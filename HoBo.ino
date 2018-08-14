@@ -133,12 +133,5 @@ void loop() {
   Serial.print(colorDetect(lS2, lS3, lSOut));
   Serial.println(" ");
 */
-
-  if(usDetect(usF) > 20) {
-   attachServo();
-   goFront(-1);
-  } else servoStop();
-	
-  delay(500);
   
 }
