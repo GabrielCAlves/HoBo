@@ -4,204 +4,222 @@
 */
 
 /*
-- Servos:
-	Rowena: 82
-	Ravenclaw: 86
-	Luna: 90
-	Lovegood: 90
-
+  - Servos:
 	Right: 0 <- 180
 	Left: 180 <- 0
 */
 
 // Sensores de cor - Retornar cor
 int colorDetect(int S2, int S3, int SOut) {
-	// R(ED)
-	digitalWrite(S2, LOW);
-	digitalWrite(S3, LOW);
-	int RedFrequency = pulseIn(SOut, LOW);
-	delay(100);
 
-	// G(REEN)
-	digitalWrite(S2, HIGH);
-	digitalWrite(S3, HIGH);
-	int GreenFrequency = pulseIn(SOut, LOW);
+  int sum = 0;
 
-	int sum = RedFrequency + GreenFrequency;
+  for (int i = 0; i < 5; i++) {
 
-	// 1 - Preto
-	if (sum >= 70) return 1;
-	// 2 - Verde
-	else if (sum >= 60) return 2;
-	// 0 - Branco
-	else return 0;
+    // R(ED)
+    digitalWrite(S2, LOW);
+    digitalWrite(S3, LOW);
+    int RedFrequency = pulseIn(SOut, LOW);
+    delay(100);
+
+    // G(REEN)
+    digitalWrite(S2, HIGH);
+    digitalWrite(S3, HIGH);
+    int GreenFrequency = pulseIn(SOut, LOW);
+
+    // B(LUE)
+    digitalWrite(S2, LOW);
+    digitalWrite(S3, HIGH);
+    int blueFrequency = pulseIn(SOut, LOW);
+
+    sum += RedFrequency + GreenFrequency + blueFrequency;
+
+  }
+
+  sum /= 5;
+  
+  // 1 - Preto
+  if (sum >= 120) return 1;
+  // 2 - Verde
+  else if (sum >= 90) return 2;
+  // 0 - Branco
+  else return 0;
+
 }
 
 // Sensor IR - Retornar cor
 int irDetect(int A0) {
-	int analogic = analogRead(A0);
-	
-	// 1 - Preto
-	if (analogic > 200) return 1;
-	// 0 - Branco
-	else return 0;
+
+  int analogic = analogRead(A0);
+
+  // 1 - Preto
+  if (analogic > 200) return 1;
+  // 0 - Branco
+  else return 0;
+
 }
 
-// Sensor US - Retornar distância
-double usDetect(int trig, int echo) {
-	// Limpar trig
-	digitalWrite(trig, LOW);
-	delayMicroseconds(2);
+// Sensor US - Retornar média de 5 leituras
+int usDetect(Ultrasonic us) {
 
-	digitalWrite(trig, HIGH);
-	delayMicroseconds(10);
-	digitalWrite(trig, LOW);
-	
-	double duration = pulseIn(echo, HIGH);
-	double distance = duration * 0.034 / 2.0;
+  int media = 0;
+  for (int i = 0; i < 5; i++) {
 
-	return distance;
+    int tempo = us.timing();
+    int dist = us.convert(tempo, Ultrasonic::CM);
+    media += dist;
+
+    delay(3);
+
+  }
+
+  return media / 5;
+
 }
 
 // Obstacle Deflect - Desviar do osbtáculo
 void obstacleDeflect() {
 
-	stop();
-	bool prob = rand() > 0.5;
+  servoStop();
+  bool prob = rand() > 0.5;
 
-	if (prob) {
+  if (prob) {
 
-		goLeft(5);
-		goFront(10);
-		goRight(5);
-		goFront(10);
-		goRight(10);
-		goFront(10);
-		goLeft(5);
+    goLeft(5);
+    goFront(10);
+    goRight(5);
+    goFront(10);
+    goRight(10);
+    goFront(10);
+    goLeft(5);
 
-	}
+  }
 
-	else {
+  else {
 
-		goRight(5);
-		goFront(10);
-		goLeft(5);
-		goFront(10);
-		goLeft(10);
-		goFront(10);
-		goRight(5);
+    goRight(5);
+    goFront(10);
+    goLeft(5);
+    goFront(10);
+    goLeft(10);
+    goFront(10);
+    goRight(5);
 
-	}
+  }
 
 }
 
 // Line Follower - Decision making
 void lineFollower() {
 
-	int rColor = colorDetect(rS2, rS3, rSOut);
-	int lColor = colorDetect(lS2, lS3, lSOut);
-	int irColor = irDetect(irA0);
+  int rColor = colorDetect(rS2, rS3, rSOut);
+  int lColor = colorDetect(lS2, lS3, lSOut);
+  int irColor = irDetect(irA0);
 
-	// Pelo menos um dos sensores de cor detecta verde - Confirmar cores
-	if (rColor == 2 || lColor == 2) {
+  // Pelo menos um dos sensores de cor detecta verde - Confirmar cores
+  if (rColor == 2 || lColor == 2) {
 
-		delay(500);
-		stop();
+    delay(500);
+    servoStop();
 
-		// Atualizar variáveis
-		rColor = colorDetect(rS2, rS3, rSOut);
-		lColor = colorDetect(lS2, lS3, lSOut);
+    // Atualizar variáveis
+    rColor = colorDetect(rS2, rS3, rSOut);
+    lColor = colorDetect(lS2, lS3, lSOut);
 
-	}
+  }
 
-	// Os dois sensores detectam verde - Meia-volta
-	if (rColor == 2 && lColor == 2) {
+  // Os dois sensores detectam verde - Meia-volta
+  if (rColor == 2 && lColor == 2) {
 
-		stop();
-		go180();
-		goFront(500);
-		return;
+    servoStop();
+    go180();
+    goFront(500);
+    return;
 
-	}
+  }
 
-	// Sensor esquerdo detecta verde - Vira para a esquerda 90º
-	if (rColor == 2) {
+  // Sensor esquerdo detecta verde - Vira para a esquerda 90º
+  if (rColor == 2) {
 
-		stop();
-		goLeft(1000);
-		return;
-	}
+    servoStop();
+    goLeft(1000);
+    return;
+  }
 
-	// Sensor direito detecta verde - Vira para a direita 90º
-	if (lColor == 2) {
+  // Sensor direito detecta verde - Vira para a direita 90º
+  if (lColor == 2) {
 
-		stop();
-		goRight(1000);
-		return;
-	}
+    servoStop();
+    goRight(1000);
+    return;
+  }
 
-	// Sensor direito detecta preto + sensor IR detecta preto + sensor esquerdo detecta branco - 90º
-	if (rColor == 1 && irColor == 1 && lColor == 0) {
+  // Sensor direito detecta preto + sensor IR detecta preto + sensor esquerdo detecta branco - 90º
+  if (rColor == 1 && irColor == 1 && lColor == 0) {
 
-		delay(1000);
-		stop();
-		
-		int newIR = irDetect(irA0);
+    delay(1000);
+    servoStop();
 
-		if (newIR == 1) {
+    int newIR = irDetect(irA0);
 
-			return;
+    if (newIR == 1) {
 
-		}
+      return;
 
-		else {
+    }
 
-			goBack(1000);
-			goRight(1000);
-			return;
+    else {
 
-		}
-	}
+      goBack(1000);
+      goRight(1000);
+      return;
 
-	// Sensor esquerdo detecta preto + sensor IR detecta preto + sensor direito detecta branco - 90º
-	if (lColor == 1 && irColor == 1 && rColor == 0) {
+    }
+  }
 
-		delay(1000);
-		stop();
+  // Sensor esquerdo detecta preto + sensor IR detecta preto + sensor direito detecta branco - 90º
+  if (lColor == 1 && irColor == 1 && rColor == 0) {
 
-		int newIR = irDetect(irA0);
+    delay(1000);
+    servoStop();
 
-		if (newIR == 1) {
+    int newIR = irDetect(irA0);
 
-			return;
+    if (newIR == 1) {
 
-		}
+      return;
 
-		else {
+    }
 
-			goBack(1000);
-			goLeft(1000);
-			return;
+    else {
 
-		}
-	}
+      goBack(1000);
+      goLeft(1000);
+      return;
 
-	// Sensor direito detecta preto + sensor IR detecta branco - Até detectar
-	if (rColor == 1 && irColor == 0) {
+    }
+  }
 
-		stop();
-		goBack(500);
-		goRight(-1);
+  // Sensor direito detecta preto + sensor IR detecta branco - Até detectar
+  if (rColor == 1 && irColor == 0) {
 
-	}
+    servoStop();
+    goBack(500);
+    goRight(-1);
+    return;
 
-	// Sensor esquerdo detecta preto + sensor IR detecta branco - Até detectar
-	if (lColor == 1 && irColor == 0) {
+  }
 
-		stop();
-		goBack(500);
-		goLeft(-1);
+  // Sensor esquerdo detecta preto + sensor IR detecta branco - Até detectar
+  if (lColor == 1 && irColor == 0) {
 
-	}
+    servoStop();
+    goBack(500);
+    goLeft(-1);
+    return;
+
+  }
+ 
+  goFront(-1);
 
 }
